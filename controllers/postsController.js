@@ -1,5 +1,7 @@
 // importazione array
 const posts = require("../db/db.js");
+// sql import
+const connection = require("../data/db.js");
 
 // path middleware
 const path = require("path");
@@ -15,19 +17,24 @@ const api = (req, res) => {
     });
 };
 
-// index
-/*
+// index 
 const index = (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../public/html/main.html"))
-};
-*/
 
-// index (bonus)
-const index = (req, res) => {
-    res.json({
-        data: posts,
-        counter: posts.length
-    });
+    // prepare the query
+    const sql = "SELECT * FROM posts";
+
+    // connect to sql
+    connection.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ error: 'Database query failed' });
+        res.json(results);
+    })
+
+    // res.json({
+    //     data: posts,
+    //     counter: posts.length
+    // });
+
+
 };
 
 // show
