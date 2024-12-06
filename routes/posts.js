@@ -21,7 +21,7 @@ router.post("/", PostsController.store)
 router.put("/:slug", PostsController.update)
 
 // destroy
-router.delete("/:title", PostsController.destroy);
+router.delete("/:id", PostsController.destroy);
 
 
 module.exports = router

@@ -33,8 +33,6 @@ const index = (req, res) => {
     //     data: posts,
     //     counter: posts.length
     // });
-
-
 };
 
 // show
@@ -115,31 +113,47 @@ const update = (req, res) => {
 // destroy
 const destroy = (req, res) => {
 
-    // Take the title from the req.params (url) and transfrom it in slug
-    const deleteTitle = req.params.title?.toLowerCase().replaceAll(" ", "-");
+    // param id
+    const { id } = req.params;
 
-    // find the post by slug
-    const post = posts.find(post => post.title.toLowerCase().replace(/ /g, "-") === deleteTitle);
+    // connect to sql
+    connection.query("DELETE FROM posts WHERE id = ?", [id], (err, results) => {
 
-    // check if post exists
-    if (!post) {
-        return res.status(404).json({
-            error: `404! Not found post with this slug: ${req.params.title}`
-        });
-    };
+        // catch error for server error
+        if (err) return res.status(500).json({ error: "Internal Server Error: faild to delete post" });
 
-    // delete from array
-    const newPosts = posts.filter(post => post.title.toLowerCase().replace(/ /g, "-") !== deleteTitle);
+        // catch error for 404
+        if (results.affectedRows === 0) return res.status(404).json({ error: "404, post not found" });
 
-    // update the db
-    fs.writeFileSync("./db/db.js", `module.exports = ${JSON.stringify(newPosts, null, 4)}`);
-
-    // return the new db
-    res.json({
-        status: 201,
-        data: newPosts,
-        counter: newPosts.length
+        // return the response
+        res.sendStatus(204);
     });
+
+    // // Take the title from the req.params (url) and transfrom it in slug
+    // const deleteTitle = req.params.title?.toLowerCase().replaceAll(" ", "-");
+
+    // // find the post by slug
+    // const post = posts.find(post => post.title.toLowerCase().replace(/ /g, "-") === deleteTitle);
+
+    // // check if post exists
+    // if (!post) {
+    //     return res.status(404).json({
+    //         error: `404! Not found post with this slug: ${req.params.title}`
+    //     });
+    // };
+
+    // // delete from array
+    // const newPosts = posts.filter(post => post.title.toLowerCase().replace(/ /g, "-") !== deleteTitle);
+
+    // // update the db
+    // fs.writeFileSync("./db/db.js", `module.exports = ${JSON.stringify(newPosts, null, 4)}`);
+
+    // // return the new db
+    // res.json({
+    //     status: 201,
+    //     data: newPosts,
+    //     counter: newPosts.length
+    // });
 };
 
 
