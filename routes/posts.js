@@ -12,7 +12,7 @@ router.get("/list", PostsController.api);
 router.get("/", PostsController.index);
 
 // show
-router.get("/:slug", PostsController.show)
+router.get("/:id", PostsController.show)
 
 // store
 router.post("/", PostsController.store)

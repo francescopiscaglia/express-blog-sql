@@ -38,20 +38,39 @@ const index = (req, res) => {
 // show
 const show = (req, res) => {
 
-    // find
-    const findPostWithSlug = posts.find(post => post.slug.toLowerCase() == req.params.slug.toLowerCase());
+    // param id
+    const { id } = req.params;
 
-    // verifica
-    if (!findPostWithSlug) {
-        return res.status(404).json({
-            error: "404! Not found"
-        });
-    };
+    // prepare the query
+    const sql = "SELECT * FROM posts WHERE id = ?";
 
-    // risposta trovata
-    res.json({
-        data: findPostWithSlug
+    // connect to sql
+    connection.query(sql, [id], (err, results) => {
+
+        // internal server error
+        if (err) return res.status(500).json({ error: "Internal server error" });
+
+        // not found error
+        if (results.length === 0) return res.status(404).json({ error: "404, post not found" });
+
+        // response
+        res.status(200).json(results[0]);
     });
+
+    // // find
+    // const findPostWithSlug = posts.find(post => post.slug.toLowerCase() == req.params.slug.toLowerCase());
+
+    // // verifica
+    // if (!findPostWithSlug) {
+    //     return res.status(404).json({
+    //         error: "404! Not found"
+    //     });
+    // };
+
+    // // risposta trovata
+    // res.json({
+    //     data: findPostWithSlug
+    // });
 };
 
 // store
