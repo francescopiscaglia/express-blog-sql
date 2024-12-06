@@ -44,6 +44,15 @@ const show = (req, res) => {
     // prepare the query
     const sql = "SELECT * FROM posts WHERE id = ?";
 
+    // prepare the join query
+    const tagsSql = `
+    SELECT tags.*
+    FROM posts
+    JOIN post_tag ON posts.id = post_tag.post_id
+    JOIN tags ON post_tag.tag_id = tags.id
+    WHERE tags.id = ?
+    `;
+
     // connect to sql
     connection.query(sql, [id], (err, results) => {
 
@@ -53,8 +62,21 @@ const show = (req, res) => {
         // not found error
         if (results.length === 0) return res.status(404).json({ error: "404, post not found" });
 
-        // response
-        res.status(200).json(results[0]);
+        const post = results[0]
+
+        // second connection
+        connection.query(tagsSql, [id], (err, tagsResults) => {
+            // internal server error
+            if (err) return res.status(500).json({ error: "Internal server error" });
+
+            // not found error
+            if (tagsResults.length === 0) return res.status(404).json({ error: "404, post not found" });
+
+            // mapping the tag array
+            post.tags = tagsResults.map(tag => tag.label);
+
+            res.status(200).json(post);
+        });
     });
 
     // // find
